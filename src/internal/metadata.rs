@@ -1,6 +1,7 @@
 use std::string::String;
 use yaml_rust::YamlLoader;
 
+/// A documents metadata used in conversion
 pub struct Metadata {
     pub paper_size: String,
     pub font_size: String,
@@ -11,6 +12,10 @@ pub struct Metadata {
     pub author: String,
 }
 
+/// Returns a loaded Metadata from a yaml file
+/// 
+/// # Arguments
+/// * `source` - The yaml file source
 pub fn load_from_yml(source: &str) -> Metadata {
     let docs = YamlLoader::load_from_str(source).unwrap();
     let doc = &docs[0];
