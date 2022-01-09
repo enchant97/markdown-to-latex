@@ -11,6 +11,11 @@ pub struct StringKeyValuePair {
     pub value: Option<String>,
 }
 
+pub fn create_command_name(name: &str) -> String {
+    let result = format!("\\{}", name);
+    return result;
+}
+
 pub fn create_key_val_str(pairs: &[StringKeyValuePair], start: char, end: char) -> String {
     let mut result = String::new();
     let mut at_start = true;
@@ -50,7 +55,7 @@ pub fn create_command(
     parameters: Option<&[StringKeyValuePair]>,
     arguments: Option<Vec<Vec<StringKeyValuePair>>>,
 ) -> String {
-    let mut result: String = format!("\\{}", name);
+    let mut result = create_command_name(name);
 
     if let Some(p) = parameters {
         result.push_str(&create_parameter(p));
