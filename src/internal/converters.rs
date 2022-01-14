@@ -117,13 +117,19 @@ pub fn get_latex_doc_start() -> String {
     return "\\maketitle\\tableofcontents\\newpage".to_string();
 }
 
-pub fn process(src_path: &str, dst_path: &str) {
-    // TODO handle errors better than using 'unwrap'
+/// Setup a two streams from given filenames
+pub fn setup_file_streams(src_path: &str, dst_path: &str) -> (BufReader<File>, BufWriter<File>) {
     let src_file = File::open(src_path).unwrap();
     let src_stream = BufReader::new(src_file);
     let dst_file = File::create(dst_path).unwrap();
-    let mut dst_stream = BufWriter::new(dst_file);
+    let dst_stream = BufWriter::new(dst_file);
+    return (src_stream, dst_stream);
+}
 
+/// Process the source (markdown file) and
+/// output converted data the destination source
+pub fn process<S: BufRead, D: Write>(src_stream: S, dst_stream: &mut D) {
+    // TODO handle errors better than using 'unwrap'
     let mut meta_buffer = String::new();
     let mut at_start = true;
     let mut in_header = false;
