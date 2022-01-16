@@ -190,7 +190,9 @@ pub fn process<S: BufRead, D: Write>(src_stream: S, dst_stream: &mut D) {
 
         if at_start && current_line == YAML_HEADER_MARKER {
             in_header = true;
-        } else if in_header && current_line == YAML_HEADER_MARKER {
+        } else if (in_header && current_line == YAML_HEADER_MARKER)
+            || (at_start && current_line != YAML_HEADER_MARKER)
+        {
             in_header = false;
             let loaded_metadata = metadata::load_from_yml(&meta_buffer);
             dst_stream
