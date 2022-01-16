@@ -1,7 +1,7 @@
-use std::fs::File;
-use std::io::{prelude::*, BufReader, BufWriter};
+use std::io::prelude::{BufRead, Write};
 use std::string::String;
 
+use crate::internal::markdown;
 use crate::internal::metadata;
 use crate::internal::tex;
 
@@ -117,6 +117,66 @@ pub fn get_latex_doc_start() -> String {
     return "\\maketitle\\tableofcontents\\newpage".to_string();
 }
 
+fn process_text(line: &str) -> String {
+    return tex::escape_reserved(line);
+}
+
+fn process_chapter(content: &str) -> String {
+    let content = tex::escape_reserved(content);
+    return tex::create_command(
+        "chapter",
+        None,
+        Some(vec![vec![tex::StringKeyValuePair {
+            key: content,
+            value: None,
+        }]]),
+    );
+}
+
+fn process_section(content: &str, number: usize) -> Result<String, String> {
+    if number < 1 || number > 3 {
+        return Err("invalid section number must be 1-3".to_string());
+    }
+    let content = tex::escape_reserved(content);
+    let command_name = match number {
+        1 => "section",
+        2 => "subsection",
+        3 => "subsubsection",
+        _ => panic!(),
+    };
+    return Ok(tex::create_command(
+        command_name,
+        None,
+        Some(vec![vec![tex::StringKeyValuePair {
+            key: content,
+            value: None,
+        }]]),
+    ));
+}
+
+fn process_header(content: &str, count: usize) -> String {
+    return match count {
+        1 => process_chapter(content),
+        2..=4 => process_section(content, count - 1).unwrap(),
+        _ => process_text(content),
+    };
+}
+
+fn process_line(line: &str) -> String {
+    let mut processed_line: String;
+
+    if line.len() == 0 {
+        processed_line = String::new();
+    } else if let Some(content) = markdown::is_heading_match(line) {
+        processed_line = process_header(content.content.as_str(), content.count);
+    } else {
+        processed_line = process_text(line);
+    }
+
+    processed_line.push_str("\n");
+    return processed_line;
+}
+
 /// Process the source (markdown file) and
 /// output converted data the destination source
 pub fn process<S: BufRead, D: Write>(src_stream: S, dst_stream: &mut D) {
@@ -142,9 +202,8 @@ pub fn process<S: BufRead, D: Write>(src_stream: S, dst_stream: &mut D) {
         } else if !at_start && in_header {
             meta_buffer.push_str(format!("{}\n", &current_line).as_str());
         } else {
-            dst_stream
-                .write(format!("{}\n", &current_line).as_bytes())
-                .unwrap();
+            let processed_line = process_line(current_line.as_str());
+            dst_stream.write(processed_line.as_bytes()).unwrap();
         }
 
         at_start = false;
