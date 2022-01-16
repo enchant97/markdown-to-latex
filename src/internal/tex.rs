@@ -14,9 +14,9 @@ pub struct StringKeyValuePair {
 }
 
 /// Returns the latex command name
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `name` - The commands name
 pub fn create_command_name(name: &str) -> String {
     let result = format!("\\{}", name);
@@ -25,9 +25,9 @@ pub fn create_command_name(name: &str) -> String {
 
 /// Returns a joined key-value string,
 /// with a start and end character
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `pairs` - The key-value pairs array
 /// * `start` - Character to place at the start
 /// * `end` - Character to place at the end
@@ -51,9 +51,9 @@ pub fn create_key_val_str(pairs: &[StringKeyValuePair], start: char, end: char) 
 
 /// Returns a latex parameter from given key-values,
 /// is a wrapper for `create_key_val_str`
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `parameters` - The key-value pairs as an array
 pub fn create_parameter(parameters: &[StringKeyValuePair]) -> String {
     return create_key_val_str(parameters, PARAMETER_START, PARAMETER_END);
@@ -61,9 +61,9 @@ pub fn create_parameter(parameters: &[StringKeyValuePair]) -> String {
 
 /// Returns a latex argument from given key-values,
 /// is a wrapper for `create_key_val_str`
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `arguments` - The key-value pairs as an array
 pub fn create_argument(arguments: &[StringKeyValuePair]) -> String {
     return create_key_val_str(arguments, ARGUMENT_START, ARGUMENT_END);
@@ -71,9 +71,9 @@ pub fn create_argument(arguments: &[StringKeyValuePair]) -> String {
 
 /// Returns a combined/chained vector of key-value arrays,
 /// used to create multiple latex arguments
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `chained_arguments` - The arguments to chain together as key-value pairs
 pub fn create_chained_argument(chained_arguments: Vec<Vec<StringKeyValuePair>>) -> String {
     let mut result = String::new();
@@ -84,9 +84,9 @@ pub fn create_chained_argument(chained_arguments: Vec<Vec<StringKeyValuePair>>) 
 }
 
 /// Returns a latex command
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `name` - The name of the command
 /// * `parameters` - Any parameters given as a array
 /// * `arguments` - Any arguments given as a 2D vector
@@ -106,4 +106,22 @@ pub fn create_command(
     }
 
     return result;
+}
+
+/// Returns the given string to an
+/// escaped version for a tex file
+///
+/// # Arguments
+/// * `to_escape` - the string to escape reserved characters
+pub fn escape_reserved(to_escape: &str) -> String {
+    return to_escape
+        .replace("\\", "\\textbackslash")
+        .replace("#", "\\#")
+        .replace("$", "\\$")
+        .replace("%", "\\%")
+        .replace("^", "\\^")
+        .replace("&", "\\&")
+        .replace("_", "\\_")
+        .replace("{", "\\}")
+        .replace("~", "\\~");
 }

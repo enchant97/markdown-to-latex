@@ -50,14 +50,37 @@ fn create_key_val_str_multiple() {
 #[test]
 fn create_command() {
     let params = [
-        tex::StringKeyValuePair{key: "toc".to_string(), value: None},
-        tex::StringKeyValuePair{key: "page".to_string(), value: None},
-        tex::StringKeyValuePair{key: "header".to_string(), value: None},
+        tex::StringKeyValuePair {
+            key: "toc".to_string(),
+            value: None,
+        },
+        tex::StringKeyValuePair {
+            key: "page".to_string(),
+            value: None,
+        },
+        tex::StringKeyValuePair {
+            key: "header".to_string(),
+            value: None,
+        },
     ];
-    let args = vec![
-        vec![tex::StringKeyValuePair{key: "appendix".to_string(), value: None}],
-    ];
+    let args = vec![vec![tex::StringKeyValuePair {
+        key: "appendix".to_string(),
+        value: None,
+    }]];
     let result = tex::create_command("usepackage", Option::Some(&params), Option::Some(args));
     let expected_result = "\\usepackage[toc,page,header]{appendix}".to_string();
     assert_eq!(expected_result, result);
+}
+
+#[test]
+fn escape_reserved() {
+    let result = tex::escape_reserved("Hello & Goodbye");
+    assert_eq!(result, "Hello \\& Goodbye");
+}
+
+#[test]
+fn escape_reserved_no_reserved() {
+    let data = "Nothing to escape here!";
+    let result = tex::escape_reserved(data);
+    assert_eq!(result, data);
 }
